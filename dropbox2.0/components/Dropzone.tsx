@@ -12,6 +12,7 @@ import {
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useState } from "react";
 import DropzoneComponent from "react-dropzone";
+import toast from "react-hot-toast";
 
 function Dropzone() {
   const [loading, setLoading] = useState(false);
@@ -41,6 +42,7 @@ function Dropzone() {
     if (!user) return;
 
     setLoading(true);
+    const toastId = toast.loading("Uploading...");
 
     const docRef = await addDoc(collection(db, "users", user.id, "files"), {
       userId: user.id,
@@ -62,6 +64,9 @@ function Dropzone() {
       });
     });
 
+    toast.success("Uploaded succesfully!", {
+      id: toastId,
+    });
     setLoading(false);
   };
 
@@ -93,10 +98,8 @@ function Dropzone() {
               <input {...getInputProps()} />
               {!isDragActive && "Click here or drop a file to upload!"}
               {isDragActive && !isDragReject && "Drop to upload this file!"}
-              {isDragReject && "File type not accepted! Sorry!"}
-              {isFileTooLarge && (
-                <div className="text-danger mt-2">File is too large!</div>
-              )}
+              {isDragReject && toast.error("File type not accepted!")}
+              {isFileTooLarge && toast.error("File size is too large!")}
             </div>
           </section>
         );
